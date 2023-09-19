@@ -1,0 +1,79 @@
+
+
+账户
+
+sa/lg...
+
+
+
+Docker中安装SQLServer，并且导入.mdf和.ldf文件
+
+ 一、 
+安装docker  
+
+curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+service docker status
+
+docker pull mcr.microsoft.com/mssql/server:2017-latest
+
+docker images
+
+
+二、docker run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=windows' -p 1433:1433 -v /home/ubuntu/mssql:/var/opt/mssql -d mcr.microsoft.com/mssql/server:2017-latest
+
+
+
+sudo docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=windows"  -p 1433:1433 --name sqlserver -v /home/ubuntu/mssql:/var/opt/mssql  -d mcr.microsoft.com/mssql/server:2017-latest
+docker ps -a 
+
+docker inspect   40cab90ef42b
+
+三、docker cp 自己Linux中laboratory.mdf路径 容器id:/var/opt/mssql/data/laboratory.mdf
+docker cp 自己Linux中laboratory_log.ldf路径 容器id:/var/opt/mssql/data/laboratory_log.ldf
+
+
+locate  Electronic.mdf
+
+/var/lib/docker/overlay2/f8e3c5f7fd51f89b46ee4858bda9d5e9658cac0b1605179886e298cf9c34d952/diff/var/opt/mssql/data/Electronic.mdf
+
+
+docker cp /home/ubuntu/mssql/Electronic.mdf       40cab90ef42b:/var/opt/mssql/data/Electronic.mdf
+docker cp /home/ubuntu/mssql/Electronic_log.ldf   40cab90ef42b:/var/opt/mssql/data/Electronic_log.ldf
+
+四、使用Navicat连接SQLServer数据库
+
+最后Navicat和服务器连上：账号：sa 密码：自己的密码
+然后在navicat中进行查询：
+EXEC sp_attach_db @dbname = ‘数据库名’,
+@filename1 = ‘/var/opt/mssql/data/MDF文件’,
+@filename2 = ‘/var/opt/mssql/data/ldf文件’
+
+create database  Electronic ;
+
+create DATABASE  Electronic3;
+
+use sys.databases
+
+EXEC sp_detach_db Electronic
+
+
+EXEC sp_attach_db @dbname = 'Electronic3',
+@filename1 = '/var/opt/mssql/data/Electronic.mdf',
+@filename2 = '/var/opt/mssql/data/Electronic_log.ldf'
+
+[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Database 'Electronic' cannot be upgraded because it is read-only, has read-only files or the user does not have permissions to modify some of the files. Make the database or files writeable, and rerun recovery. (3415)
+
+
+[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Database 'Electronic' already exists. Choose a different database name. (1801)
+
+然后重启Navicat就可以显示出来了；
+
+运行命令 docker image ls，列出所有安装的镜像。
+3. 使用命令 docker image rm 命令，删除需要卸载的镜像。
+4. 如果你想卸载所有镜像，请运行以下命令：docker image rm -f $(docker image ls -q)
+docker image rm -f $(docker image ls -q)
+
+docker  rm  -f $(docker ps  -aq)
