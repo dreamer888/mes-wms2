@@ -1,4 +1,4 @@
-# MES-WCS
+# MES+WMS
 
 一个基于C#语言编写的MES+立体仓库管理系统  ，用到了supersocket通信框架，以及WPF架构等技术 
 
